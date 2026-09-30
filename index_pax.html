@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pax · group trips that actually happen</title>
+<meta name="description" content="Pax plans your group trip on WhatsApp. Private preferences, a secret vote, and your money only blocked with your own UPI PIN.">
+<meta name="theme-color" content="#c6ff3d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #fbf7ef;
+    --lime: #c6ff3d;
+    --pink: #ff5fa2;
+    --lilac: #b9a6ff;
+    --sky: #7fd6ff;
+    --sun: #ffd23f;
+    --muted: #4a4a4a;
+    --wa: #25d366;
+    --border: 2.5px solid var(--ink);
+    --shadow: 4px 4px 0 var(--ink);
+    --shadow-lg: 6px 6px 0 var(--ink);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .display { font-family: "Bricolage Grotesque", "Inter", sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+  .wrap { width: 100%; max-width: 560px; margin: 0 auto; padding: 0 16px; }
+  section { padding: 56px 0; }
+
+  /* Top bar */
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--paper);
+    border-bottom: var(--border);
+  }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
+  .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--lime); border: var(--border);
+    display: grid; place-items: center;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 20px;
+    transform: rotate(-6deg);
+  }
+  .brand b { font-family: "Bricolage Grotesque", sans-serif; font-size: 22px; font-weight: 800; }
+  .mini-cta {
+    font-size: 14px; font-weight: 700; text-decoration: none; color: var(--ink);
+    background: var(--wa); border: var(--border); border-radius: 999px;
+    padding: 8px 14px; box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  /* Hero */
+  .hero { padding: 36px 0 44px; }
+  .tag {
+    display: inline-block; font-size: 13px; font-weight: 700;
+    background: var(--sun); border: var(--border); border-radius: 999px;
+    padding: 6px 12px; transform: rotate(-2deg);
+  }
+  .hero h1 { font-size: clamp(42px, 12vw, 64px); line-height: 0.98; margin-top: 18px; }
+  .hl {
+    background: var(--lime); padding: 0 6px; border-radius: 8px;
+    box-decoration-break: clone; -webkit-box-decoration-break: clone;
+  }
+  .hero p.lead { font-size: 18px; line-height: 1.5; color: var(--muted); margin-top: 16px; max-width: 34ch; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; margin-top: 24px;
+    background: var(--wa); color: var(--ink);
+    border: var(--border); border-radius: 16px; box-shadow: var(--shadow-lg);
+    font-weight: 800; font-size: 19px; text-decoration: none;
+    padding: 18px 20px;
+    transition: transform .1s ease, box-shadow .1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--ink); }
+  .btn svg { width: 24px; height: 24px; flex: none; }
+  .sub-hint { text-align: center; font-size: 14px; color: var(--muted); margin-top: 12px; }
+
+  /* Phone chat mock */
+  .phone {
+    margin-top: 36px;
+    background: #efe7da;
+    border: var(--border); border-radius: 26px; box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .phone-head {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--ink); color: #fff; padding: 12px 14px;
+  }
+  .phone-head .logo { width: 32px; height: 32px; font-size: 17px; border-color: #fff; transform: none; color: var(--ink); }
+  .phone-head b { font-size: 15px; display: block; }
+  .phone-head small { font-size: 12px; opacity: .7; }
+  .chat { padding: 16px 12px 18px; display: grid; gap: 8px; }
+  .msg {
+    max-width: 82%; padding: 9px 12px; border-radius: 14px;
+    font-size: 14.5px; line-height: 1.4; border: 2px solid var(--ink);
+  }
+  .msg.pax { background: #fff; border-top-left-radius: 4px; }
+  .msg.me { background: #d9fdd3; justify-self: end; border-top-right-radius: 4px; }
+  .msg .t { display: block; text-align: right; font-size: 11px; color: #777; margin-top: 2px; }
+  .voice { display: flex; align-items: center; gap: 8px; }
+  .voice .play { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); display: grid; place-items: center; }
+  .voice .play::after { content: ""; border-left: 7px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; margin-left: 2px; }
+  .wave { display: flex; gap: 2px; align-items: center; height: 18px; }
+  .wave i { width: 3px; background: var(--ink); border-radius: 2px; display: block; }
+  .counter {
+    justify-self: center; font-size: 12.5px; font-weight: 700;
+    background: var(--sun); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 10px;
+  }
+
+  /* Marquee */
+  .marquee {
+    background: var(--ink); color: var(--lime);
+    border-top: var(--border); border-bottom: var(--border);
+    overflow: hidden; white-space: nowrap; padding: 12px 0;
+    font-weight: 700; font-size: 15px;
+  }
+  .track { display: inline-flex; gap: 28px; animation: slide 22s linear infinite; padding-left: 28px; }
+  .track span::after { content: "✦"; margin-left: 28px; color: var(--pink); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* Section headings */
+  .kicker { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  h2 { font-size: clamp(32px, 9vw, 44px); line-height: 1.02; margin-top: 8px; }
+  .intro { font-size: 17px; line-height: 1.5; color: var(--muted); margin-top: 12px; }
+
+  /* Why Pax: problem vs fix */
+  .pairs { display: grid; gap: 18px; margin-top: 28px; }
+  .pair {
+    border: var(--border); border-radius: 20px; box-shadow: var(--shadow);
+    overflow: hidden; background: #fff;
+  }
+  .pair .prob { padding: 16px 16px 14px; border-bottom: var(--border); }
+  .pair .prob .emo { font-size: 26px; }
+  .pair .prob b { display: block; font-size: 18px; margin-top: 6px; }
+  .pair .prob small { font-size: 14.5px; color: var(--muted); line-height: 1.45; display: block; margin-top: 4px; }
+  .pair .fix { padding: 14px 16px 16px; font-size: 15px; line-height: 1.45; }
+  .pair .fix em { font-style: normal; font-weight: 800; }
+  .p1 .fix { background: var(--lime); }
+  .p2 .fix { background: var(--lilac); }
+  .p3 .fix { background: var(--sky); }
+  .p4 .fix { background: var(--pink); }
+
+  /* How it works */
+  .how { background: var(--lilac); border-top: var(--border); border-bottom: var(--border); }
+  .steps { display: grid; gap: 14px; margin-top: 28px; counter-reset: s; }
+  .step {
+    display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: start;
+    background: #fff; border: var(--border); border-radius: 18px; box-shadow: var(--shadow);
+    padding: 16px;
+  }
+  .step .n {
+    width: 52px; height: 52px; border-radius: 14px; border: var(--border);
+    background: var(--sun); display: grid; place-items: center;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 26px;
+  }
+  .step:nth-child(2) .n { background: var(--lime); }
+  .step:nth-child(3) .n { background: var(--sky); }
+  .step:nth-child(4) .n { background: var(--pink); }
+  .step b { font-size: 17px; display: block; }
+  .step small { font-size: 14.5px; line-height: 1.45; color: var(--muted); display: block; margin-top: 3px; }
+  .step .time { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; border: 2px solid var(--ink); border-radius: 999px; padding: 2px 8px; }
+
+  /* Promises */
+  .promises { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
+  .promise {
+    border: var(--border); border-radius: 18px; padding: 16px 14px; background: #fff;
+    box-shadow: var(--shadow);
+  }
+  .promise .ico { font-size: 28px; }
+  .promise b { display: block; font-size: 16px; margin-top: 8px; line-height: 1.2; }
+  .promise small { display: block; font-size: 13.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .promise:nth-child(1) { transform: rotate(-1.2deg); }
+  .promise:nth-child(4) { transform: rotate(1.2deg); }
+
+  /* FAQ */
+  .faq { display: grid; gap: 12px; margin-top: 24px; }
+  details {
+    border: var(--border); border-radius: 16px; background: #fff; box-shadow: var(--shadow);
+  }
+  summary {
+    list-style: none; cursor: pointer; padding: 16px; font-weight: 700; font-size: 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "+"; flex: none; width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--ink);
+    display: grid; place-items: center; font-weight: 800; background: var(--lime);
+  }
+  details[open] summary::after { content: "-"; background: var(--pink); }
+  details p { padding: 0 16px 16px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+
+  /* Final CTA */
+  .final { background: var(--ink); color: #fff; border-top: var(--border); text-align: center; }
+  .final h2 { color: #fff; }
+  .final h2 .hl { color: var(--ink); }
+  .final .intro { color: #cfcfcf; }
+  .final .btn { box-shadow: 6px 6px 0 var(--lime); border-color: var(--lime); }
+
+  .partners { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .partners span { font-size: 13px; font-weight: 600; border: 2px solid #fff; border-radius: 999px; padding: 5px 12px; }
+  footer { background: var(--ink); color: #9a9a9a; text-align: center; font-size: 12.5px; padding: 8px 16px 110px; }
+
+  /* Sticky bottom CTA */
+  .sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(251, 247, 239, .96); border-top: var(--border);
+    transform: translateY(110%); transition: transform .25s ease;
+  }
+  .sticky.show { transform: translateY(0); }
+  .sticky .btn { margin: 0 auto; max-width: 528px; font-size: 17px; padding: 14px; box-shadow: var(--shadow); }
+
+  /* Toast */
+  .toast {
+    position: fixed; left: 50%; top: 76px; transform: translate(-50%, -20px); opacity: 0;
+    background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+    padding: 12px 16px; border-radius: 12px; z-index: 40; pointer-events: none;
+    transition: all .2s ease; width: max-content; max-width: calc(100% - 32px); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <nav class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><div class="logo">P</div><b>pax</b></a>
+      <a class="mini-cta js-wa" href="#">Say hi 👋</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="tag">your group chat's new planner</span>
+      <h1 class="display">group trips that <span class="hl">actually</span> happen.</h1>
+      <p class="lead">Pax plans the whole trip with your friends on WhatsApp. Everyone gets a say, nobody gets chased for money, and it ends in a booking.</p>
+
+      <a class="btn js-wa" id="heroCta" href="#">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M8.5 10.5h7M8.5 13.5h4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        Chat with Pax on WhatsApp
+      </a>
+      <p class="sub-hint">No app. No sign-up. Just say hi.</p>
+
+      <!-- Chat preview -->
+      <div class="phone" aria-label="Example chat with Pax">
+        <div class="phone-head">
+          <div class="logo">P</div>
+          <div><b>Pax</b><small>trip planner · online</small></div>
+        </div>
+        <div class="chat">
+          <div class="msg pax">hey Riya! planning the Gokarna trip with the gang 🌊 6 quick questions. reply here or send a voice note<span class="t">10:02</span></div>
+          <div class="msg me">
+            <div class="voice">
+              <div class="play"></div>
+              <div class="wave"><i style="height:6px"></i><i style="height:12px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:14px"></i><i style="height:7px"></i><i style="height:15px"></i><i style="height:11px"></i><i style="height:5px"></i><i style="height:13px"></i><i style="height:8px"></i><i style="height:16px"></i><i style="height:10px"></i></div>
+              <small>0:18</small>
+            </div>
+            <span class="t">10:04</span>
+          </div>
+          <div class="msg pax">Got it: <b>beach · 12-16 Dec · chill · ₹15k · from Pune</b>. Correct? 👍 or tell me what to fix<span class="t">10:04</span></div>
+          <div class="msg me">👍<span class="t">10:05</span></div>
+          <div class="counter">4 of 5 voted · 3 pledged · closes Fri 6 pm</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>no app to download</span><span>votes are secret</span><span>voice notes welcome</span><span>Hinglish? sure</span><span>money moves only on your PIN</span><span>always ends in a decision</span>
+      <span>no app to download</span><span>votes are secret</span><span>voice notes welcome</span><span>Hinglish? sure</span><span>money moves only on your PIN</span><span>always ends in a decision</span>
+    </div>
+  </div>
+
+  <!-- Why Pax -->
+  <section id="why">
+    <div class="wrap">
+      <p class="kicker">why pax</p>
+      <h2 class="display">"we should go somewhere" is not a plan.</h2>
+      <p class="intro">Every group trip dies the same four ways. Pax fixes each one.</p>
+
+      <div class="pairs">
+        <div class="pair p1">
+          <div class="prob"><span class="emo">💀</span><b>The plan dies in the group chat</b><small>200 messages, 14 reels, zero bookings. Again.</small></div>
+          <div class="fix"><em>Pax:</em> every step has a deadline and a default. If the group goes quiet, the best-fit plan goes ahead for everyone who's in.</div>
+        </div>
+        <div class="pair p2">
+          <div class="prob"><span class="emo">📢</span><b>The loudest friend picks</b><small>The quiet ones just go along and then complain on the trip.</small></div>
+          <div class="fix"><em>Pax:</em> asks everyone privately, 1:1. Then a secret vote on 3 options. Nobody sees who voted what.</div>
+        </div>
+        <div class="pair p3">
+          <div class="prob"><span class="emo">👻</span><b>That one friend who ghosts</b><small>Seen at 2:14 am. No reply. Trip on hold.</small></div>
+          <div class="fix"><em>Pax:</em> follows up, then gives them a quick call, then lets the group know. Nobody has to be the bad guy.</div>
+        </div>
+        <div class="pair p4">
+          <div class="prob"><span class="emo">💸</span><b>Chasing everyone for money</b><small>"I'll pay you back bro" is not a payment method.</small></div>
+          <div class="fix"><em>Pax:</em> each person blocks their own share with their UPI PIN. It's charged only once the trip is booked, and never more than you approved.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <p class="kicker">how it works</p>
+      <h2 class="display">from "let's go" to booked in about a week.</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <div><b>Say hi, add your friends</b><small>Tell Pax the idea and send your friends' numbers. Pax sets up the trip group.</small><span class="time">day 0</span></div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div><b>Everyone shares privately</b><small>Where, when, vibe, budget, starting city. Text or a voice note, in any mix of Hindi and English.</small><span class="time">day 0-1</span></div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div><b>3 options, one secret vote</b><small>Pax researches and brings back 3 trips with real prices. You vote in your own chat. Voting closes in 72 hours.</small><span class="time">day 2-4</span></div>
+        </div>
+        <div class="step">
+          <div class="n">4</div>
+          <div><b>Booked. Everyone's paid.</b><small>Pax locks the final price, charges each person their share, books it and drops the details in the group.</small><span class="time">day 4-6</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promises -->
+  <section id="promises">
+    <div class="wrap">
+      <p class="kicker">the pax promises</p>
+      <h2 class="display">rules Pax never breaks.</h2>
+      <div class="promises">
+        <div class="promise"><div class="ico">🤫</div><b>Private stays private</b><small>Your preferences and vote never leave your chat. Not even the organiser sees them.</small></div>
+        <div class="promise"><div class="ico">🔐</div><b>Your PIN, your money</b><small>Blocked in your own account, not sent anywhere until the trip is booked.</small></div>
+        <div class="promise"><div class="ico">⏰</div><b>Silence never blocks</b><small>Every wait has a deadline, so the trip always lands.</small></div>
+        <div class="promise"><div class="ico">🧾</div><b>Real prices only</b><small>Every price comes with a source. No made-up numbers.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="padding-top: 8px;">
+    <div class="wrap">
+      <p class="kicker">faq</p>
+      <h2 class="display">ok but...</h2>
+      <div class="faq">
+        <details>
+          <summary>Is my money safe?</summary>
+          <p>Yes. When you pledge, your share is only blocked in your own bank account using a UPI One-Time Mandate that you approve with your PIN. Nothing is debited until the trip is booked. If you don't go, Pax releases it. Payments run on Pine Labs.</p>
+        </details>
+        <details>
+          <summary>Can my friends see how I voted?</summary>
+          <p>No. Votes happen in your 1:1 chat with Pax. The group only sees a counter, like "4 of 5 voted".</p>
+        </details>
+        <details>
+          <summary>Do I need to download anything?</summary>
+          <p>No. Pax lives on WhatsApp. If you can send a message, you can plan a trip.</p>
+        </details>
+        <details>
+          <summary>What if we just can't decide?</summary>
+          <p>Pick "none of the above" and Pax brings 3 new options. If the group still can't decide, the best-fit option goes ahead for everyone who pledged. Nobody is dragged along without saying yes.</p>
+        </details>
+        <details>
+          <summary>What if the group picks a trip I didn't vote for?</summary>
+          <p>You get 48 hours to join or pass. No awkwardness, no pressure.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final">
+    <div class="wrap">
+      <h2 class="display">your next trip is one <span class="hl">"hi"</span> away.</h2>
+      <p class="intro">Tap below. WhatsApp opens with "Hi" ready. Hit send and Pax takes it from there.</p>
+      <a class="btn js-wa" href="#">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M8.5 10.5h7M8.5 13.5h4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        Chat with Pax on WhatsApp
+      </a>
+      <div class="partners"><span>Payments by Pine Labs</span><span>Voice by Gnani</span></div>
+    </div>
+  </section>
+  <footer>made for friend groups who keep saying "next time" · Pax</footer>
+
+  <!-- Sticky CTA (shows after the hero button scrolls away) -->
+  <div class="sticky" id="sticky">
+    <a class="btn js-wa" href="#">Chat with Pax on WhatsApp</a>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // ================= EDIT HERE =================
+  // Pax's WhatsApp number: country code + number, digits only.
+  // Example: "919876543210" for +91 98765 43210
+  const PAX_NUMBER = "91XXXXXXXXXX";
+
+  // The message that appears pre-typed when WhatsApp opens
+  const FIRST_MESSAGE = "Hi";
+  // =============================================
+
+  // Optional override from the link itself, e.g. yoursite/?to=919876543210&msg=Hi
+  const params = new URLSearchParams(location.search);
+  const number = (params.get("to") || PAX_NUMBER).replace(/\D/g, "");
+  const message = params.get("msg") || FIRST_MESSAGE;
+  const ready = /^\d{10,15}$/.test(number);
+  const waLink = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+
+  const toast = document.getElementById("toast");
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2600);
+  }
+
+  document.querySelectorAll(".js-wa").forEach((a) => {
+    if (ready) {
+      a.href = waLink;
+    } else {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        showToast("Pax's number isn't added yet. Set PAX_NUMBER in the file.");
+      });
+    }
+  });
+
+  // Show the sticky button once the hero button is off screen
+  const sticky = document.getElementById("sticky");
+  const heroCta = document.getElementById("heroCta");
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      sticky.classList.toggle("show", !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    }).observe(heroCta);
+  }
+</script>
+</body>
+</html>
